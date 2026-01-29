@@ -9,4 +9,4 @@ bcrypt
 cryptography
 psycopg2
 uvicorn
-guicorn
+gunicorn
