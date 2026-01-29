@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Управление тарифами - License System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Добавить тариф</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('admin.create_tariff') }}">
+                    <div class="mb-3">
+                        <label for="product_id" class="form-label">Продукт</label>
+                        <select class="form-control" id="product_id" name="product_id" required>
+                            <option value="">Выберите продукт</option>
+                            {% for product in products %}
+                                <option value="{{ product.id }}">{{ product.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Название тарифа</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Описание</label>
+                        <textarea class="form-control" id="description" name="description" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="price" class="form-label">Цена (₽)</label>
+                        <input type="number" step="0.01" class="form-control" id="price" name="price" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="period_days" class="form-label">Период (дней)</label>
+                        <input type="number" class="form-control" id="period_days" name="period_days" value="30">
+                        <div class="form-text">0 = бессрочно</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="max_devices" class="form-label">Максимум устройств</label>
+                        <input type="number" class="form-control" id="max_devices" name="max_devices" value="1" min="1">
+                    </div>
+                    <div class="mb-3">
+                        <label for="key_prefix" class="form-label">Префикс ключа</label>
+                        <input type="text" class="form-control" id="key_prefix" name="key_prefix" required maxlength="10">
+                        <div class="form-text">Например: PRO, BASIC, TRIAL</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-plus-circle"></i> Создать тариф
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Тарифы</h4>
+                <span class="badge bg-primary">{{ tariffs|length }} тарифов</span>
+            </div>
+            <div class="card-body">
+                {% if tariffs %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Название</th>
+                                    <th>Продукт</th>
+                                    <th>Цена</th>
+                                    <th>Период</th>
+                                    <th>Устройств</th>
+                                    <th>Префикс</th>
+                                    <th>Активен</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for tariff in tariffs %}
+                                    <tr>
+                                        <td>{{ tariff.id }}</td>
+                                        <td><strong>{{ tariff.name }}</strong></td>
+                                        <td>{{ tariff.product.name }}</td>
+                                        <td>{{ tariff.price }} ₽</td>
+                                        <td>
+                                            {% if tariff.period_days > 0 %}
+                                                {{ tariff.period_days }} дней
+                                            {% else %}
+                                                Бессрочно
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ tariff.max_devices }}</td>
+                                        <td><code>{{ tariff.key_prefix }}</code></td>
+                                        <td>
+                                            {% if tariff.is_active %}
+                                                <span class="badge bg-success">Да</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Нет</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        Нет созданных тарифов
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

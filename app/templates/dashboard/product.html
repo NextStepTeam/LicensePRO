@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - License System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">{{ product.name }}</h4>
+            </div>
+            <div class="card-body">
+                {% if product.description %}
+                    <p class="card-text">{{ product.description }}</p>
+                {% endif %}
+                
+                <h5 class="mt-4">Доступные тарифы</h5>
+                <div class="row mt-3">
+                    {% for tariff in tariffs %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100 {% if tariff.price == 0 %}border-success{% endif %}">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ tariff.name }}</h5>
+                                    <p class="card-text text-muted">{{ tariff.description or '' }}</p>
+                                    <div class="mb-2">
+                                        <span class="badge bg-primary">{{ tariff.price }} ₽</span>
+                                        {% if tariff.period_days > 0 %}
+                                            <span class="badge bg-secondary">{{ tariff.period_days }} дней</span>
+                                        {% else %}
+                                            <span class="badge bg-success">Бессрочно</span>
+                                        {% endif %}
+                                        <span class="badge bg-info">До {{ tariff.max_devices }} устройств</span>
+                                    </div>
+                                    
+                                    <form method="POST" action="{{ url_for('main.create_license') }}">
+                                        <input type="hidden" name="product_id" value="{{ product.id }}">
+                                        <input type="hidden" name="tariff_id" value="{{ tariff.id }}">
+                                        
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control" name="name" 
+                                                   placeholder="Название лицензии" required>
+                                            <button class="btn btn-primary" type="submit">
+                                                Купить
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                Нет доступных тарифов для этого продукта
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Мои лицензии для этого продукта</h5>
+            </div>
+            <div class="card-body">
+                {% if licenses %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Ключ</th>
+                                    <th>Название</th>
+                                    <th>Тариф</th>
+                                    <th>Статус</th>
+                                    <th>Действует до</th>
+                                    <th>Устройства</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for license in licenses %}
+                                    <tr>
+                                        <td><code>{{ license.key[:15] }}...</code></td>
+                                        <td>{{ license.name }}</td>
+                                        <td>{{ license.tariff.name }}</td>
+                                        <td>
+                                            {% if license.is_active %}
+                                                <span class="badge bg-success">Активна</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Неактивна</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if license.valid_until %}
+                                                {{ license.valid_until.strftime('%Y-%m-%d') }}
+                                            {% else %}
+                                                Бессрочно
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {{ license.devices|length }}/{{ license.tariff.max_devices }}
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('main.license_detail', license_id=license.id) }}" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        У вас еще нет лицензий для этого продукта
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Информация</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Баланс:</strong> {{ "%.2f"|format(current_user.balance) }} ₽</p>
+                <p><strong>Активных лицензий:</strong> {{ licenses|selectattr('is_active')|list|length }}</p>
+                
+                <div class="mt-4">
+                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-arrow-left"></i> Назад к продуктам
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        
+    </div>
+</div>
+{% endblock %}

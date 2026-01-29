@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}Управление лицензиями - License System{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Все лицензии</h4>
+        <span class="badge bg-primary">{{ licenses|length }} лицензий</span>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Ключ</th>
+                        <th>Владелец</th>
+                        <th>Продукт</th>
+                        <th>Тариф</th>
+                        <th>Название</th>
+                        <th>Устройств</th>
+                        <th>Статус</th>
+                        <th>Действует до</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for license in licenses %}
+                        <tr>
+                            <td><code>{{ license.key }}</code></td>
+                            <td>{{ license.owner.username }}</td>
+                            <td>{{ license.product.name }}</td>
+                            <td>{{ license.tariff.name }}</td>
+                            <td>{{ license.name }}</td>
+                            <td>
+                                {{ license.devices|length }}/{{ license.tariff.max_devices }}
+                            </td>
+                            <td>
+                                {% if license.is_active %}
+                                    {% if license.valid_until and license.valid_until < now %}
+                                        <span class="badge bg-warning">Истекла</span>
+                                    {% else %}
+                                        <span class="badge bg-success">Активна</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge bg-danger">Неактивна</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if license.valid_until %}
+                                    {{ license.valid_until.strftime('%Y-%m-%d') }}
+                                {% else %}
+                                    Бессрочно
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{{ url_for('main.license_detail', license_id=license.id) }}" 
+                                       class="btn btn-outline-primary">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <form method="POST" action="{{ url_for('admin.admin_toggle_license', license_id=license.id) }}">
+                                        <button type="submit" class="btn btn-{% if license.is_active %}warning{% else %}success{% endif %}">
+                                            {% if license.is_active %}
+                                                <i class="bi bi-pause"></i>
+                                            {% else %}
+                                                <i class="bi bi-play"></i>
+                                            {% endif %}
+                                        </button>
+                                    </form>
+                                    <button class="btn btn-outline-danger" data-bs-toggle="modal" 
+                                            data-bs-target="#blacklistModal{{ license.id }}">
+                                        <i class="bi bi-shield-slash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Модальное окно черного списка -->
+                        <div class="modal fade" id="blacklistModal{{ license.id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Черный список: {{ license.key }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        {% set blacklisted_ips = license.get_blacklisted_ips() %}
+                                        {% if blacklisted_ips %}
+                                            <h6>Заблокированные IP:</h6>
+                                            <ul class="list-group mb-3">
+                                                {% for ip in blacklisted_ips %}
+                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                        {{ ip }}
+                                                        <form method="POST" action="{{ url_for('admin.remove_from_blacklist', license_id=license.id) }}" 
+                                                              class="d-inline">
+                                                            <input type="hidden" name="ip" value="{{ ip }}">
+                                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                                <i class="bi bi-x"></i>
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        {% else %}
+                                            <p class="text-muted">Черный список пуст</p>
+                                        {% endif %}
+                                        
+                                        <hr>
+                                        
+                                        <form method="POST" action="{{ url_for('admin.add_to_blacklist', license_id=license.id) }}">
+                                            <div class="mb-3">
+                                                <label class="form-label">Добавить IP в черный список</label>
+                                                <input type="text" class="form-control" name="ip" 
+                                                       placeholder="192.168.1.1" 
+                                                       pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}">
+                                            </div>
+                                            <div class="d-grid">
+                                                <button type="submit" class="btn btn-danger">
+                                                    <i class="bi bi-shield-slash"></i> Заблокировать IP
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}Админ панель - License System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="number">{{ stats.total_users }}</div>
+                <div class="label">Пользователей</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="number">{{ stats.total_licenses }}</div>
+                <div class="label">Лицензий</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="number">{{ stats.active_licenses }}</div>
+                <div class="label">Активных лицензий</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="number">{{ stats.total_products }}</div>
+                <div class="label">Продуктов</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Последние пользователи</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Пользователь</th>
+                                <th>Email</th>
+                                <th>Дата регистрации</th>
+                                <th>Баланс</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in stats.recent_users %}
+                                <tr>
+                                    <td>
+                                        {{ user.username }}
+                                        {% if user.is_admin %}
+                                            <span class="badge bg-danger">Admin</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ user.email }}</td>
+                                    <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ "%.2f"|format(user.balance) }} ₽</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <a href="{{ url_for('admin.admin_users') }}" class="btn btn-outline-primary btn-sm">
+                    Все пользователи <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Быстрые действия</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('admin.admin_products') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-box"></i> Управление продуктами
+                    </a>
+                    <a href="{{ url_for('admin.admin_tariffs') }}" class="btn btn-outline-success">
+                        <i class="bi bi-tag"></i> Управление тарифами
+                    </a>
+                    <a href="{{ url_for('admin.admin_licenses') }}" class="btn btn-outline-warning">
+                        <i class="bi bi-key"></i> Управление лицензиями
+                    </a>
+                    <a href="{{ url_for('admin.admin_notifications') }}" class="btn btn-outline-info">
+                        <i class="bi bi-bell"></i> Уведомления
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Последние лицензии</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Ключ</th>
+                                <th>Пользователь</th>
+                                <th>Продукт</th>
+                                <th>Статус</th>
+                                <th>Создана</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for license in stats.recent_licenses %}
+                                <tr>
+                                    <td><code>{{ license.key[:10] }}...</code></td>
+                                    <td>{{ license.owner.username }}</td>
+                                    <td>{{ license.product.name }}</td>
+                                    <td>
+                                        {% if license.is_active %}
+                                            <span class="badge bg-success">Активна</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Неактивна</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ license.created_at.strftime('%Y-%m-%d') }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <a href="{{ url_for('admin.admin_licenses') }}" class="btn btn-outline-primary btn-sm">
+                    Все лицензии <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Статистика</h5>
+            </div>
+            <div class="card-body">
+                <a href="{{ url_for('admin.admin_statistics') }}" class="btn btn-outline-secondary w-100">
+                    <i class="bi bi-graph-up"></i> Просмотреть полную статистику
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

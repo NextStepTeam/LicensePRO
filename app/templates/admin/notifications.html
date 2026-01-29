@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Уведомления - License System{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Уведомления</h4>
+        <span class="badge bg-primary">{{ notifications|length }} уведомлений</span>
+    </div>
+    <div class="card-body">
+        {% if notifications %}
+            <div class="list-group">
+                {% for notification in notifications %}
+                    <div class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ notification.title }}</h6>
+                            <small>{{ notification.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                        </div>
+                        <p class="mb-1">{{ notification.message }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small>Получатель: {{ notification.user.username }}</small>
+                            <span class="badge bg-{% if notification.is_read %}secondary{% else %}info{% endif %}">
+                                {% if notification.is_read %}Прочитано{% else %}Новое{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                Нет уведомлений
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Статистика - License System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Общая статистика</h5>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <tr>
+                        <td>Общий доход:</td>
+                        <td class="text-end"><strong>{{ "%.2f"|format(revenue) }} ₽</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Активных лицензий:</td>
+                        <td class="text-end"><strong>{{ active_licenses_count }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Просроченных лицензий:</td>
+                        <td class="text-end"><strong>{{ expired_licenses }}</strong></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Распределение по продуктам</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Продукт</th>
+                                <th>Лицензий</th>
+                                <th>Доход</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stat in product_stats %}
+                                <tr>
+                                    <td>{{ stat[0] }}</td>
+                                    <td>{{ stat[1] }}</td>
+                                    <td>{{ "%.2f"|format(stat[2] or 0) }} ₽</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Графики</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center py-4">
+                    <i class="bi bi-bar-chart display-1 text-muted"></i>
+                    <p class="mt-3 text-muted">
+                        Графики будут добавлены в следующих версиях
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Экспорт данных</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary">
+                        <i class="bi bi-file-earmark-excel"></i> Экспорт в Excel
+                    </button>
+                    <button class="btn btn-outline-secondary">
+                        <i class="bi bi-file-earmark-pdf"></i> Экспорт в PDF
+                    </button>
+                    <button class="btn btn-outline-info">
+                        <i class="bi bi-file-earmark-text"></i> Экспорт в CSV
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

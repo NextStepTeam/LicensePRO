@@ -1,0 +1,225 @@
+/* style.css */
+:root {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
+}
+
+[data-bs-theme="dark"] {
+    --glass-bg: rgba(0, 0, 0, 0.2);
+    --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+body {
+    background: #f8f9fa;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+[data-bs-theme="dark"] body {
+    background: #1a1a2e;
+}
+
+/* Навигация с эффектом стекла и высоким z-index */
+.navbar {
+    z-index: 1050;
+}
+
+.navbar-glass {
+    background: var(--glass-bg) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--glass-border);
+    position: relative;
+}
+
+.brand-text {
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+/* Выпадающие меню с высоким z-index */
+.dropdown-menu {
+    z-index: 1060;
+}
+
+.notification-dropdown {
+    z-index: 1070;
+}
+
+/* Аватар */
+.avatar-sm {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--primary-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+}
+
+/* Отображение баланса */
+.balance-display {
+    background: rgba(59, 130, 246, 0.1);
+    padding: 6px 12px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    color: #1e40af;
+}
+
+[data-bs-theme="dark"] .balance-display {
+    background: rgba(59, 130, 246, 0.2);
+    color: #93c5fd;
+}
+
+.balance-amount {
+    font-weight: 600;
+}
+
+/* Карточки */
+.card {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 1;
+}
+
+[data-bs-theme="dark"] .card {
+    background: #2d3748;
+    color: #e2e8f0;
+}
+
+.card-header {
+    background: var(--primary-gradient);
+    color: white;
+    border-bottom: none;
+    padding: 16px 20px;
+}
+
+/* Таблицы */
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+[data-bs-theme="dark"] .table th {
+    color: #a0aec0;
+}
+
+.table td {
+    vertical-align: middle;
+    padding: 12px;
+}
+
+/* Бейджи */
+.badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+/* Формы */
+.form-control, .form-select {
+    border-radius: 6px;
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+}
+
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select {
+    background: #4a5568;
+    border-color: #4a5568;
+    color: #e2e8f0;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+}
+
+/* Кнопки */
+.btn {
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-weight: 500;
+}
+
+.btn-primary {
+    background: var(--primary-gradient);
+    border: none;
+}
+
+/* Статистические карточки */
+.stat-card {
+    text-align: center;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+[data-bs-theme="dark"] .stat-card {
+    background: #2d3748;
+}
+
+.stat-icon {
+    font-size: 2rem;
+    margin-bottom: 12px;
+    color: #3b82f6;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+}
+
+.stat-label {
+    color: #6b7280;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    margin-top: 6px;
+}
+
+[data-bs-theme="dark"] .stat-label {
+    color: #a0aec0;
+}
+
+/* Футер */
+.footer {
+    margin-top: auto;
+}
+
+/* Выпадающее меню уведомлений */
+.notification-dropdown {
+    max-width: 350px;
+}
+
+.notification-dropdown .dropdown-item {
+    white-space: normal;
+}
+
+/* Основной контент должен быть под навбаром */
+main.container {
+    position: relative;
+    z-index: 1;
+}
