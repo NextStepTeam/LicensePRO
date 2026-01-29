@@ -1,7 +1,7 @@
 from flask import jsonify, request
 from datetime import datetime
 from app import db
-from app.models import Product, License, Device, Notification
+from app.models import Product, License, Device, Notification, User
 from flask import Blueprint
 bp = Blueprint('api', __name__)
 
@@ -137,6 +137,7 @@ def license_check(product_id, key):
     device.last_seen = datetime.utcnow()
     device.ip_address = ip_address
     db.session.commit()
+    user = User.query.filter_by(id == license.user_id).first()
     
     # Возвращаем информацию о лицензии
     return jsonify({
@@ -146,7 +147,8 @@ def license_check(product_id, key):
             "product_id": license.product_id,
             "valid_until": license.valid_until.isoformat() if license.valid_until else None,
             "max_devices": license.tariff.max_devices,
-            "current_devices": Device.query.filter_by(license_id=license.id).count()
+            "current_devices": Device.query.filter_by(license_id=license.id).count(),
+            "owner": user.username
         },
         "device": {
             "id": device.id,
