@@ -137,7 +137,7 @@ def license_check(product_id, key):
     device.last_seen = datetime.utcnow()
     device.ip_address = ip_address
     db.session.commit()
-    user = User.query.filter_by(id == license.user_id).first()
+    user = User.query.filter_by(User.id == license.user_id).first()
     
     # Возвращаем информацию о лицензии
     return jsonify({
