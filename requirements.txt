@@ -7,3 +7,6 @@ python-dotenv
 requests
 bcrypt
 cryptography
+psycopg2
+uvicorn
+guicorn

@@ -1,27 +1,41 @@
-# Dockerfile
 FROM python:3.11-slim
 
 WORKDIR /app
 
-# Установка зависимостей
+# Устанавливаем системные зависимости
 RUN apt-get update && apt-get install -y \
     gcc \
-    g++ \
+    libpq-dev \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Копирование requirements и установка Python зависимостей
+# Копируем и устанавливаем Python зависимости
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Копирование исходного кода
+# Копируем весь код
 COPY . .
 
-# Переменные окружения
+# Создаем скрипт для запуска с ожиданием БД
+RUN echo '#!/bin/bash\n\
+echo "Waiting for PostgreSQL to be ready..."\n\
+# Ждем пока PostgreSQL станет доступен\n\
+for i in {1..30}; do\n\
+  if curl -s postgres:5432 >/dev/null 2>&1; then\n\
+    echo "PostgreSQL is ready!"\n\
+    break\n\
+  fi\n\
+  echo "Attempt $i/30: PostgreSQL not ready, waiting..."\n\
+  sleep 2\n\
+done\n\
+# Запускаем Flask приложение\n\
+echo "Starting Flask application..."\n\
+exec python run.py\n\
+' > /app/start.sh && chmod +x /app/start.sh
+
 ENV FLASK_APP=run.py
+ENV PYTHONUNBUFFERED=1
 ENV FLASK_ENV=production
 
-# Открытие порта
-EXPOSE 5000
-
-# Запуск приложения
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "run:app"]
+# Используем скрипт как точку входа
+CMD ["/app/start.sh"]

@@ -1,9 +1,8 @@
-# docker-compose.yml
 version: '3.8'
 
 services:
   postgres:
-    image: postgres:15-alpine
+    image: postgres:latest
     container_name: licensepro_postgres
     environment:
       POSTGRES_USER: ${DB_USER:-license_user}
@@ -13,19 +12,13 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - licensepro_network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-license_user}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
     restart: unless-stopped
 
   web:
     build: .
     container_name: licensepro_web
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
     environment:
       DATABASE_URL: postgresql://${DB_USER:-license_user}:${DB_PASSWORD:-license_password}@postgres:5432/${DB_NAME:-license_db}
       SECRET_KEY: ${SECRET_KEY:-your-secret-key-change-this}
@@ -39,11 +32,11 @@ services:
     networks:
       - licensepro_network
     restart: unless-stopped
-    expose:
-      - "5000"
+    ports:
+      - "5000:5000"
 
   caddy:
-    image: caddy:2-alpine
+    image: caddy:latest
     container_name: licensepro_caddy
     depends_on:
       - web
