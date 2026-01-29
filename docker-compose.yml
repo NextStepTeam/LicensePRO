@@ -1,0 +1,68 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: licensepro_postgres
+    environment:
+      POSTGRES_USER: ${DB_USER:-license_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-license_password}
+      POSTGRES_DB: ${DB_NAME:-license_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - licensepro_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-license_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  web:
+    build: .
+    container_name: licensepro_web
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-license_user}:${DB_PASSWORD:-license_password}@postgres:5432/${DB_NAME:-license_db}
+      SECRET_KEY: ${SECRET_KEY:-your-secret-key-change-this}
+      FLASK_ENV: production
+      FLASK_DEBUG: 0
+    volumes:
+      - ./app:/app/app
+      - ./run.py:/app/run.py
+      - ./config.py:/app/config.py
+      - ./requirements.txt:/app/requirements.txt
+    networks:
+      - licensepro_network
+    restart: unless-stopped
+    expose:
+      - "5000"
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: licensepro_caddy
+    depends_on:
+      - web
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - licensepro_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  caddy_data:
+  caddy_config:
+
+networks:
+  licensepro_network:
+    driver: bridge
